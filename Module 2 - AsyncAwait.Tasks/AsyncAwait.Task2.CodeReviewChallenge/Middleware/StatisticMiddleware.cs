@@ -20,20 +20,25 @@ namespace AsyncAwait.Task2.CodeReviewChallenge.Middleware
         }
 
         public async Task InvokeAsync(HttpContext context)
-        {   
+        {
             string path = context.Request.Path;
+
+            // ???
+            //await _statisticService.RegisterVisitAsync(path);
+            //UpdateHeaders();
 
             Task staticRegTask = Task.Run(
                 () => _statisticService.RegisterVisitAsync(path)
                 .ConfigureAwait(false)
                 .GetAwaiter().OnCompleted(UpdateHeaders));
             Console.WriteLine(staticRegTask.Status); // just for debugging purposes
-            
-            void UpdateHeaders()
+
+            //GetAwaiter().GetResult() blocks the thread. Sync over async
+            async void UpdateHeaders()
             {
-                context.Response.Headers.Add(
-                    CustomHttpHeaders.TotalPageVisits,
-                    _statisticService.GetVisitsCountAsync(path).GetAwaiter().GetResult().ToString());
+                long visits = await _statisticService.GetVisitsCountAsync(path);
+
+                context.Response.Headers.Add(CustomHttpHeaders.TotalPageVisits, visits.ToString());
             }
 
             Thread.Sleep(3000); // without this the statistic counter does not work

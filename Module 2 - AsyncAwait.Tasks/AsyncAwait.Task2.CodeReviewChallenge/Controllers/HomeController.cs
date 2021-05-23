@@ -25,15 +25,17 @@ namespace AsyncAwait.Task2.CodeReviewChallenge.Controllers
             return View();
         }
 
-        public ActionResult Privacy()
+        //Result property will block the thread, so it is better to make this method asynchronous. 
+        //In this case we will avoid deadlocks and thread blocking.
+        public async Task<ActionResult> Privacy()
         {
-            ViewBag.Message = _privacyDataService.GetPrivacyDataAsync().Result;
+            ViewBag.Message = await _privacyDataService.GetPrivacyDataAsync();
             return View();
         }
 
         public async Task<IActionResult> Help()
         {
-            ViewBag.RequestInfo = await _assistant.RequestAssistanceAsync("guest").ConfigureAwait(false);
+            ViewBag.RequestInfo = await _assistant.RequestAssistanceAsync("guest");
             return View();
         }
         
