@@ -10,6 +10,7 @@ namespace CentralServer
     {
         static void Main(string[] args)
         {
+            CentralServer.Start();
         }
     }
 }
