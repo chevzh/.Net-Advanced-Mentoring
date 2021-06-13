@@ -33,6 +33,35 @@ namespace Expressions.Task3.E3SQueryProvider
 
                 return node;
             }
+
+            if(node.Method.DeclaringType == typeof(string))
+            {
+                MemberExpression left = node.Object as MemberExpression;           
+
+                var right = Expression.Lambda<Func<object>>(node.Arguments[0]).Compile().Invoke();
+
+                switch (node.Method.Name) 
+                {
+                    case "Equals":
+                        break;
+                    case "StartsWith":
+                        right += "*";
+                        break;
+                    case "EndsWith":
+                        right = "*" + right;
+                        break;
+                    case "Contains":
+                        right = "*" + right + "*";
+                        break;
+                }                        
+
+                var binaryExpression = Expression.MakeBinary(ExpressionType.Equal, left, Expression.Constant(right));
+
+                Visit(binaryExpression);
+
+                return node;
+            }
+
             return base.VisitMethodCall(node);
         }
 
@@ -41,16 +70,28 @@ namespace Expressions.Task3.E3SQueryProvider
             switch (node.NodeType)
             {
                 case ExpressionType.Equal:
-                    if (node.Left.NodeType != ExpressionType.MemberAccess)
-                        throw new NotSupportedException($"Left operand should be property or field: {node.NodeType}");
+                    if(node.Left.NodeType == ExpressionType.Constant && node.Right.NodeType == ExpressionType.MemberAccess)
+                    {
+                        Visit(node.Right);
+                        _resultStringBuilder.Append("(");
+                        Visit(node.Left);
+                        _resultStringBuilder.Append(")");
+                    }
+                    else
+                    {
+                        Visit(node.Left);
+                        _resultStringBuilder.Append("(");
+                        Visit(node.Right);
+                        _resultStringBuilder.Append(")");
+                    }
+                    break;
 
-                    if (node.Right.NodeType != ExpressionType.Constant)
-                        throw new NotSupportedException($"Right operand should be constant: {node.NodeType}");
-
+                case ExpressionType.AndAlso:
+                    _resultStringBuilder.Append("{'statements':[{'query':'");
                     Visit(node.Left);
-                    _resultStringBuilder.Append("(");
+                    _resultStringBuilder.Append("'},{'query':'");
                     Visit(node.Right);
-                    _resultStringBuilder.Append(")");
+                    _resultStringBuilder.Append("'}]}");
                     break;
 
                 default:
