@@ -4,10 +4,11 @@ namespace AsyncAwait.Task2.CodeReviewChallenge.Services
 {
     public class PrivacyDataService : IPrivacyDataService
     {
-        public Task<string> GetPrivacyDataAsync()
+        // No need to use AsTask, because we are using await only once in caller method.
+        public ValueTask<string> GetPrivacyDataAsync()
         {
             return new ValueTask<string>("This Policy describes how async/await processes your personal data," +
-                                            "but it may not address all possible data processing scenarios.").AsTask();
+                                            "but it may not address all possible data processing scenarios.");
         }
     }
 }
