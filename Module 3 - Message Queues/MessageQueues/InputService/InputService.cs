@@ -31,7 +31,7 @@ namespace InputService
         {
             if (!MessageQueue.Exists(InputServiceQueueName))
             {
-                MessageQueue.Create(InputServiceQueueName);
+                MessageQueue.Create(InputServiceQueueName, true);
             }
         }
 
@@ -44,22 +44,49 @@ namespace InputService
             {
                 var stopWorkEvent = new ManualResetEvent(false);
 
+                serverQueue.Formatter = new BinaryMessageFormatter();
+
                 inputServiceQueue.Formatter = new XmlMessageFormatter(new Type[] { typeof(string) });
                 inputServiceQueue.MessageReadPropertyFilter.CorrelationId = true;
 
-                using (FileStream fileStream = new FileStream(e.FullPath, FileMode.Open, FileAccess.ReadWrite))
+                long fileLen = new FileInfo(e.FullPath).Length;
+                long totalRead = 0;
+
+                int partSize = 3 * 1024 * 1024;
+
+                string id = string.Empty;
+
+                using (FileStream fileStream = new FileStream(e.FullPath, FileMode.Open, FileAccess.Read))
                 {
-                    Message message = new Message
+                    using (var transaction = new MessageQueueTransaction())
                     {
-                        BodyStream = fileStream,
-                        Label = e.Name,
-                        ResponseQueue = inputServiceQueue
-                    };
+                        transaction.Begin();
 
-                    serverQueue.Send(message);
+                        while (totalRead < fileLen)
+                        {
+                            var part = new byte[fileLen - totalRead < partSize ? fileLen - totalRead : partSize];
 
-                    string id = message.Id;
-                    string correlationId = "";
+                            totalRead += fileStream.Read(part, 0, part.Length);
+
+                            Message message = new Message
+                            {
+                                BodyStream = new MemoryStream(part),
+                                Label = e.Name,
+                                ResponseQueue = inputServiceQueue
+                            };
+
+                            id = message.Id;
+
+                            serverQueue.Send(message, transaction);
+                        }
+
+                        transaction.Commit();
+                    }
+
+                    
+                    string correlationId = string.Empty;
+
+                    Message responseMessage = null;
 
                     while (id != correlationId)
                     {
@@ -69,15 +96,19 @@ namespace InputService
                         if (res == 0)
                         {
                             break;
-                        }                           
+                        }
 
-                        message = inputServiceQueue.EndPeek(asyncReceive);
+                        responseMessage = inputServiceQueue.EndPeek(asyncReceive);
 
-                        inputServiceQueue.ReceiveById(message.Id);
-                        correlationId = message.CorrelationId;
+                        inputServiceQueue.ReceiveById(responseMessage.Id);
+                        correlationId = responseMessage.CorrelationId;
                     }
 
-                    Console.WriteLine($"Message from CentralServer: {message.Body}");
+
+                    if(responseMessage != null)
+                    {
+                        Console.WriteLine($"Message from CentralServer: {responseMessage.Body}");
+                    }                    
                 }                
             }
         }

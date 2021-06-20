@@ -11,16 +11,16 @@ namespace CentralServer
 
         public static void Start()
         {
-            CreateMessageQueue();
-            ProcessDocument();
-
             Console.WriteLine("CentralServer is working.");
+
+            CreateMessageQueue();
+            ProcessDocument();            
         }
 
         private static void CreateMessageQueue()
         {
-            if(!MessageQueue.Exists(ServerQueueName)) {
-                MessageQueue.Create(ServerQueueName);
+            if (!MessageQueue.Exists(ServerQueueName)) {
+                MessageQueue.Create(ServerQueueName, true);
             }
         }
 
@@ -30,22 +30,51 @@ namespace CentralServer
             {
                 while (true)
                 {
-                    Message message = serverQueue.Receive();
-                    message.Formatter = new XmlMessageFormatter();
+                    MessageQueue responseQueue = null;
 
-                    using (StreamReader reader = new StreamReader(message.BodyStream))
-                    using (StreamWriter writer = new StreamWriter($"{path}/{message.Label}"))
+                    string id = string.Empty;
+                    string fileName = string.Empty;
+
+                    serverQueue.Formatter = new BinaryMessageFormatter();                   
+
+                    using (MessageQueueTransaction transaction = new MessageQueueTransaction())
                     {
-                        writer.Write(reader.ReadToEnd());
+                        try
+                        {
+                            transaction.Begin();
+
+                            Message message = serverQueue.Receive();
+
+                            byte[] buffer = new byte[16 * 1024];
+                            using (StreamWriter ms = new StreamWriter($"{path}/{message.Label}", true))
+                            {
+                                int read;
+
+                                while ((read = message.BodyStream.Read(buffer, 0, buffer.Length)) > 0)
+                                {
+                                    ms.BaseStream.Write(buffer, 0, read);
+                                }
+                            }
+
+                            responseQueue = message.ResponseQueue;
+                            fileName = message.Label;
+                            id = message.Id;
+
+                            transaction.Commit();
+                        }
+                        catch(Exception exception)
+                        {
+                            transaction.Abort();
+
+                            Console.WriteLine($"There was error while receiving messages: {exception.Message}");
+                        }                                            
                     }
 
-                    Console.WriteLine($"Recieved: {message.Label}");
-
-                    MessageQueue responseQueue = message.ResponseQueue;
+                    Console.WriteLine($"File recieved: {fileName}");                    
 
                     if (responseQueue != null)
                     {
-                        responseQueue.Send(new Message($"File received: {message.Label}") { CorrelationId = message.Id });
+                        responseQueue.Send(new Message($"File received: {fileName}") { CorrelationId = id });
                     }
                 }
             }
