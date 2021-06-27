@@ -18,7 +18,7 @@ namespace Task1
                 rngCsp.GetBytes(salt);
             }
 
-            string password = "testPassword123";
+            string password = "testPassword123testPassword123testPassword123testPassword123testPassword123";
 
             GetTime(GeneratePasswordHashUsingSalt, "GeneratePasswordHashUsingSalt", password, salt);
 
@@ -27,7 +27,9 @@ namespace Task1
         public static string GeneratePasswordHashUsingSalt(string passwordText, byte[] salt)
         {
 
-            var iterate = 10000; var pbkdf2 = new Rfc2898DeriveBytes(passwordText, salt, iterate); 
+            var iterate = 10000; 
+            var pbkdf2 = new Rfc2898DeriveBytes(passwordText, salt, iterate); 
+
             byte[] hash = pbkdf2.GetBytes(20);
 
             byte[] hashBytes = new byte[36]; 
