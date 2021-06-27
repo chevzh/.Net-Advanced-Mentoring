@@ -50,9 +50,7 @@ namespace GameOfLife
             {
                 adWindow[i].Closed -= AdWindowOnClosed;
                 adWindow[i] = null;
-            }
-            
-            
+            }            
         }
 
 
