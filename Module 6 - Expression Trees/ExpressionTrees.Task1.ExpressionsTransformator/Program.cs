@@ -7,6 +7,8 @@
  * The results could be printed in console or checked via Debugger using any Visualizer.
  */
 using System;
+using System.Collections.Generic;
+using System.Linq.Expressions;
 
 namespace ExpressionTrees.Task1.ExpressionsTransformer
 {
@@ -17,7 +19,11 @@ namespace ExpressionTrees.Task1.ExpressionsTransformer
             Console.WriteLine("Expression Visitor for increment/decrement.");
             Console.WriteLine();
 
-            // todo: feel free to add your code here
+            Expression<Func<int, int>> incrementExpression = i => (i + 1) + 3 + (i * 3);
+            Expression<Func<int, int>> decrementExpression = i => (i - 1) + 3 + (i * 3);
+
+            var incrementResult = new IncDecExpressionVisitor().Convert(incrementExpression);
+            var decrementResult = new IncDecExpressionVisitor().Convert(decrementExpression);
 
             Console.ReadLine();
         }
