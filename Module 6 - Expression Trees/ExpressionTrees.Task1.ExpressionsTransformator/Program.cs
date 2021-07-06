@@ -22,8 +22,12 @@ namespace ExpressionTrees.Task1.ExpressionsTransformer
             Expression<Func<int, int>> incrementExpression = i => (i + 1) + 3 + (i * 3);
             Expression<Func<int, int>> decrementExpression = i => (i - 1) + 3 + (i * 3);
 
-            var incrementResult = new IncDecExpressionVisitor().Convert(incrementExpression);
-            var decrementResult = new IncDecExpressionVisitor().Convert(decrementExpression);
+            IncDecExpressionVisitor visitor = new IncDecExpressionVisitor();
+
+            var incrementResult = visitor.Convert(incrementExpression);
+            var decrementResult = visitor.Convert(decrementExpression);
+
+            var constantResult = visitor.Convert(incrementExpression, new Dictionary<string, int>() { { "i", 10 } });
 
             Console.ReadLine();
         }

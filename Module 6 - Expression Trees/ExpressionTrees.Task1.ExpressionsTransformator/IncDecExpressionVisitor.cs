@@ -6,8 +6,10 @@ namespace ExpressionTrees.Task1.ExpressionsTransformer
 {
     public class IncDecExpressionVisitor : ExpressionVisitor
     {
-        readonly Dictionary<ExpressionType, Func<ParameterExpression, Expression>> operations = new Dictionary<ExpressionType, Func<ParameterExpression, Expression>>() 
-        { 
+        private Dictionary<string, int> operators;
+
+        readonly Dictionary<ExpressionType, Func<Expression, Expression>> operations = new Dictionary<ExpressionType, Func<Expression, Expression>>()
+        {
             {ExpressionType.Add,  Expression.Increment},
             {ExpressionType.Subtract,  Expression.Decrement},
         };
@@ -17,21 +19,50 @@ namespace ExpressionTrees.Task1.ExpressionsTransformer
             return Visit(exp);
         }
 
+        public Expression Convert(Expression exp, Dictionary<string, int> operators)
+        {
+            this.operators = operators;
+
+            return Visit(exp);
+        }
+
         protected override Expression VisitBinary(BinaryExpression node)
         {
-            if (node.NodeType == ExpressionType.Add || node.NodeType == ExpressionType.Subtract)
-            {
-                (ParameterExpression parameterExpression, ConstantExpression constantExpression) = DetectNodes(node);
+            (Expression parameterExpression, ConstantExpression constantExpression) = DetectNodes(node);
 
-                if (parameterExpression != null && constantExpression != null
-                   && constantExpression.Type == typeof(int) && (int)constantExpression.Value == 1)
+            if (parameterExpression != null && constantExpression != null
+                   && constantExpression.Type == typeof(int))
+            {
+
+                if (operators?.Count > 0)
                 {
-                    return operations[node.NodeType](parameterExpression);
+                    parameterExpression = operators.TryGetValue(((ParameterExpression)parameterExpression).Name, out var param) ? Expression.Constant(param) : parameterExpression;
+                }
+
+                if (node.NodeType == ExpressionType.Add || node.NodeType == ExpressionType.Subtract)
+                {
+                    if ((int)constantExpression.Value == 1)
+                    {
+                        return operations[node.NodeType](parameterExpression);
+                    }
                 }
             }
 
             return base.VisitBinary(node);
         }
+
+        protected override Expression VisitParameter(ParameterExpression node)
+        {
+            if (operators?.Count > 0)
+            {
+                return operators.TryGetValue(node.Name, out var param) ? (Expression)Expression.Constant(param) : node;
+            }
+
+            return base.VisitParameter(node);
+        }
+
+        protected override Expression VisitLambda<T>(Expression<T> node)
+            => Expression.Lambda(Visit(node.Body), node.Parameters);
 
         private (ParameterExpression, ConstantExpression) DetectNodes(BinaryExpression node)
         {
