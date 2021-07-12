@@ -2,6 +2,10 @@
 {
     internal class Foo
     {
-        // add here some properties
+        public int A { get; set; }
+        public string B { get; set; }
+        public object C { get; set; }
+        public bool D { get =>  true; }
+        public int E {get; set;}
     }
 }

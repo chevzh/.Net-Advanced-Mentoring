@@ -2,6 +2,9 @@
 {
     internal class Bar
     {
-        // add here some other properties
+        public int A { get; set; }
+        public string B { get; set; }
+        public object C { get; set; }
+        public bool D { get => false; }
     }
 }
