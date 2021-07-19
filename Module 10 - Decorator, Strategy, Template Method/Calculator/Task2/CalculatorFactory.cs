@@ -15,7 +15,7 @@
 
         public ICalculator CreateCachedCalculator()
         {
-            return new CachedInsurancePaymentCalculator();
+            return new CachedInsurancePaymentCalculator(this.CreateCalculator());
         }
 
         public ICalculator CreateCalculator()

@@ -18,7 +18,7 @@
 
         public ICalculator CreateCachedCalculator()
         {
-            return new CachedPaymentDecorator();
+            return new CachedPaymentDecorator(this.CreateCalculator());
         }
 
         public ICalculator CreateCalculator()
@@ -28,12 +28,12 @@
 
         public ICalculator CreateLoggingCalculator()
         {
-            return new LoggingCalculatorDecorator();
+            return new LoggingCalculatorDecorator(this.CreateCalculator(), logger);
         }
 
         public ICalculator CreateRoundingCalculator()
         {
-            return new RoundingCalculatorDecorator();
+            return new RoundingCalculatorDecorator(this.CreateCalculator());
         }
     }
 }
