@@ -14,7 +14,14 @@ namespace TemplateMethod.Task2
 
         public void CookMasala(Country country)
         {
-            throw new NotImplementedException();
+            if(country == Country.India)
+            {
+                new IndiaCooker().CookMasala(cooker);
+            }
+            else
+            {
+                new UkraineCooker().CookMasala(cooker);
+            }
         }
     }
 }
