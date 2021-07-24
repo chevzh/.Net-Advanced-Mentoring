@@ -1,25 +1,36 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace StockExchange.Task4
 {
-    public class RedSocks
+    public class RedSocks: Player
     {
-        public int SoldShares { get; }
+        Dictionary<string, int> sellOffers = new Dictionary<string, int>();
+        Dictionary<string, int> buyOffers = new Dictionary<string, int>();
 
-        public int BoughtShares { get; }
+        int soldShares = 0;
+        int boughtShares = 0;
 
-        public RedSocks()
+        public int SoldShares => soldShares;
+        public int BoughtShares => boughtShares;
+
+        public RedSocks(Players player) : base(player)
         {
+            SellOffers = sellOffers;
+            BuyOffers = buyOffers;
         }
 
-        public bool SellOffer(string stockName, int numberOfShares)
+        public override void Update(string dealType, int numberOfShares)
         {
-            throw new NotImplementedException();
-        }
+            if (dealType == "Sell")
+            {
+                this.boughtShares += numberOfShares;
+            }
 
-        public bool BuyOffer(string stockName, int numberOfShares)
-        {
-            throw new NotImplementedException();
+            if (dealType == "Buy")
+            {
+                this.soldShares += numberOfShares;
+            }
         }
     }
 }

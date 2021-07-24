@@ -4,11 +4,13 @@
     {
         public Players CreatePlayers()
         {
-            return new Players
-            {
-                RedSocks = new RedSocks(),
-                Blossomers = new Blossomers()
-            };
+            Players player = new Players();
+
+            player.Blossomers = new Blossomers(player);
+            player.RedSocks = new RedSocks(player);
+            player.RossSocks = new RossSocks(player);
+
+            return player;
         }
     }
 }
