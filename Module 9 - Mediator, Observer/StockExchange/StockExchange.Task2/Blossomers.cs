@@ -1,21 +1,18 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace StockExchange.Task2
 {
-    public class Blossomers
+    public class Blossomers : Player
     {
-        public Blossomers() 
-        { 
-        }
+        Dictionary<string, int> sellOffers = new Dictionary<string, int>();
+        Dictionary<string, int> buyOffers = new Dictionary<string, int>();
 
-        public bool SellOffer(string stockName, int numberOfShares)
+        public Blossomers(Players player) : base(player)
         {
-            throw new NotImplementedException();
-        }
-
-        public bool BuyOffer(string stockName, int numberOfShares)
-        {
-            throw new NotImplementedException();
+            SellOffers = sellOffers;
+            BuyOffers = buyOffers;
         }
     }
+    
 }
