@@ -3,6 +3,7 @@ using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 
 namespace AbstractFactory.Tests
@@ -38,7 +39,7 @@ namespace AbstractFactory.Tests
             {
                 yield return new object[]
                 {
-                    DateTime.Parse("2/16/2020"),
+                    DateTime.ParseExact("02/16/2020", "MM/dd/yyyy", CultureInfo.InvariantCulture),
                     Country.India,
                     new Ingredient
                     {
@@ -58,7 +59,7 @@ namespace AbstractFactory.Tests
 
                 yield return new object[]
                 {
-                    DateTime.Parse("2/16/2020"),
+                    DateTime.ParseExact("02/16/2020", "MM/dd/yyyy", CultureInfo.InvariantCulture),
                     Country.Ukraine,
                     new Ingredient
                     {
@@ -78,7 +79,7 @@ namespace AbstractFactory.Tests
 
                 yield return new object[]
                 {
-                    DateTime.Parse("2/16/2020"),
+                    DateTime.ParseExact("02/16/2020", "MM/dd/yyyy", CultureInfo.InvariantCulture),
                     Country.England,
                     new Ingredient
                     {
@@ -94,7 +95,7 @@ namespace AbstractFactory.Tests
 
                 yield return new object[]
                 {
-                    DateTime.Parse("7/20/2020"),
+                    DateTime.ParseExact("07/20/2020", "MM/dd/yyyy", CultureInfo.InvariantCulture),
                     Country.India,
                     new Ingredient
                     {
@@ -112,7 +113,7 @@ namespace AbstractFactory.Tests
 
                 yield return new object[]
                 {
-                    DateTime.Parse("7/20/2020"),
+                    DateTime.ParseExact("07/20/2020", "MM/dd/yyyy", CultureInfo.InvariantCulture),
                     Country.Ukraine,
                     new Ingredient
                     {
@@ -130,7 +131,7 @@ namespace AbstractFactory.Tests
 
                 yield return new object[]
                 {
-                    DateTime.Parse("7/20/2020"),
+                    DateTime.ParseExact("07/20/2020", "MM/dd/yyyy", CultureInfo.InvariantCulture),
                     Country.England,
                     new Ingredient
                     {

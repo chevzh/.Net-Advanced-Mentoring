@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Restaurant.Task2.CookerFactories;
+using System;
 
 namespace AbstartFactory
 {
@@ -13,6 +14,15 @@ namespace AbstartFactory
 
         public void CookMasala(DateTime currentDate, Country country)
         {
+            ICookerFactory cookerFactory = IsSummerDate(currentDate) ? new SummerFactory().CreateFactory(country) : new BasicFactory().CreateFactory(country);            
+
+            this.CookMasala(cookerFactory);
+        }
+
+        private void CookMasala(ICookerFactory cookerFactory)
+        {
+            cookerFactory.CookRice(cooker);
+            cookerFactory.CookChicken(cooker);
         }
 
         private bool IsSummerDate(DateTime currentDate)
